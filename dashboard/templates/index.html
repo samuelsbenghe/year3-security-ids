@@ -4,10 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Project Logs</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   </head>
   <body>
     <main>
@@ -16,20 +13,14 @@
         <p>Refreshes every second.</p>
       </header>
       <nav aria-label="Log types">
-        {% for key, label in tabs.items() %}
+      {% for key, label in tabs.items() %}
         <a
           href="{{ url_for('index', tab=key) }}"
-          {%
-          if
-          key=""
-          ="active_tab"
-          %}aria-current="page"
-          {%
-          endif
-          %}
-          >{{ label }}</a
+          {% if key == active_tab %}aria-current="page"{% endif %}
         >
-        {% endfor %}
+          {{ label }}
+        </a>
+      {% endfor %}
       </nav>
       <section aria-labelledby="log-title">
         <h2 id="log-title">{{ tabs[active_tab] }} logs</h2>
