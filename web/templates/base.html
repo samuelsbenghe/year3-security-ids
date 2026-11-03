@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{% block title %}Notes App{% endblock %}</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <nav>
+      <div class="nav-content">
+        <a href="{{ url_for('index') }}">Home</a>
+
+        {% if session.get('username') %}
+        <span>Note it, {{ session.username }}</span>
+
+        <a href="{{ url_for('logout') }}">Logout</a>
+
+        {% else %}
+        <div class="nav-actions">
+          <a href="{{ url_for('login') }}">Login</a>
+          <a href="{{ url_for('register') }}">Register</a>
+        </div>
+        {% endif %}
+      </div>
+    </nav>
+
+    <main>
+      {% with messages = get_flashed_messages() %} {% for message in messages %}
+      <p class="flash">{{ message }}</p>
+      {% endfor %} {% endwith %} {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

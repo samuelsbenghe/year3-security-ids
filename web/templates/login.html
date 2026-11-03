@@ -1,0 +1,40 @@
+{% extends "base.html" %} {% block title %}Login{% endblock %} {% block content
+%}
+
+<div class="form-container">
+  <h1>Log in</h1>
+  <p>Welcome back. Pick up where you left off.</p>
+
+  <form method="POST">
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        autocomplete="username"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        autocomplete="current-password"
+        required
+      />
+    </div>
+
+    <button type="submit" class="btn">Log in</button>
+  </form>
+
+  <p class="form-footer">
+    New here?
+    <a href="{{ url_for('register') }}">Create an account</a>
+  </p>
+</div>
+
+{% endblock %}

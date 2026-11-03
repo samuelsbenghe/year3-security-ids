@@ -1,0 +1,70 @@
+{% extends "base.html" %} {% block title %}Notes - Notes App{% endblock %} {%
+block content %}
+
+<div class="container">
+  <h1>Public notes</h1>
+
+  {% if session.get("token") %}
+  <p>
+    <a href="{{ url_for('notes') }}" class="btn">Create a note</a>
+  </p>
+  {% else %}
+  <p><a href="{{ url_for('login') }}">Log in</a> to create a note.</p>
+  {% endif %} {% if notes %}
+  <div class="notes-list">
+    {% for note in notes %}
+    <article class="note">
+      <div class="note-header">
+        <strong>{{ note.username }}</strong>
+        <small>{{ note.created_at }}</small>
+      </div>
+
+      <p>{{ note.content }}</p>
+    </article>
+    {% endfor %}
+  </div>
+  {% if total_pages > 1 %}
+  <div class="pagination" role="navigation" aria-label="Notes pages">
+    {% if has_previous %}
+    <a class="btn" href="{{ url_for('index', page=page - 1) }}">Previous</a>
+    {% else %}
+    <span class="page-spacer"></span>
+    {% endif %}
+
+    <div class="page-links">
+      {% if page_numbers and page_numbers[0] > 1 %}
+      <a href="{{ url_for('index', page=1) }}">1</a>
+      {% if page_numbers[0] > 2 %}<span aria-hidden="true">…</span>{% endif %}
+      {% endif %} {% for page_number in page_numbers %} {% if page_number ==
+      page %}
+      <span class="page-current" aria-current="page">{{ page_number }}</span>
+      {% else %}
+      <a href="{{ url_for('index', page=page_number) }}">{{ page_number }}</a>
+      {% endif %} {% endfor %} {% if page_numbers and page_numbers[-1] <
+      total_pages %} {% if page_numbers[-1] < total_pages - 1 %}<span
+        aria-hidden="true"
+        >…</span
+      >{% endif %}
+      <a href="{{ url_for('index', page=total_pages) }}">{{ total_pages }}</a>
+      {% endif %}
+    </div>
+
+    {% if has_next %}
+    <a class="btn" href="{{ url_for('index', page=page + 1) }}">Next</a>
+    {% else %}
+    <span class="page-spacer"></span>
+    {% endif %}
+  </div>
+  <p class="page-summary">
+    Page {{ page }} of {{ total_pages }} · {{ total_notes }} notes
+  </p>
+  {% endif %} {% else %} {% if unavailable %}
+  <p>Public notes are temporarily unavailable.</p>
+  {% elif total_notes == 0 %}
+  <p>No notes have been published yet.</p>
+  {% else %}
+  <p>No notes on this page.</p>
+  {% endif %} {% endif %}
+</div>
+
+{% endblock %}

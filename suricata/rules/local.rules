@@ -1,0 +1,4 @@
+alert http any any -> any any (msg:"IDS: phpinfo or mail panel scan"; flow:established,to_server; http.uri; pcre:"/\/(?:smtp|webmail|mail|hosting|cpanel)\/phpinfo\.php/i"; sid:1000001; rev:1;)
+alert http any any -> any any (msg:"IDS: environment or profiler scan"; flow:established,to_server; http.uri; pcre:"/\/(?:_environment|_profiler\/phpinfo|webroot\/index\.php\/_environment)/i"; sid:1000002; rev:1;)
+alert http any any -> any any (msg:"IDS: server status or info scan"; flow:established,to_server; http.uri; pcre:"/\/server-(?:status|info)\.php/i"; sid:1000003; rev:1;)
+alert http any any -> any any (msg:"IDS: SQL injection pattern in note body"; flow:established,to_server; http.uri; content:"/notes"; startswith; http.request_body; pcre:"/%27(?:(?:\+|%20|\s|%2F%2A.*?%2A%2F|%3B(?:\+|%20|\s)*))*(?:OR|AND|UNION|SELECT|DROP|--)/i"; sid:1000007; rev:4;)

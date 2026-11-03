@@ -1,0 +1,111 @@
+services:
+  web:
+    container_name: web
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    environment:
+      - SECRET_KEY=${WEB_SECRET_KEY}
+      - API_URL=${API_URL}
+    volumes:
+      - dashboard-logs:/logs
+    ports:
+      - "16000:16000"
+    networks:
+      - public
+      - private
+    depends_on:
+      api:
+        condition: service_healthy
+
+  api:
+    container_name: api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    volumes:
+      - api-data:/app/data
+    environment:
+      - JWT_SECRET=${API_JWT_SECRET}
+    networks:
+      - private
+    expose:
+      - "17000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:17000/health')",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  attacker:
+    container_name: attacker
+    build:
+      context: ./attacker
+      dockerfile: Dockerfile
+    environment:
+      - TARGET_URL=${ATTACKER_TARGET_URL:-http://web:16000}
+      - ATTACKER_INTERVAL_SECONDS=${ATTACKER_INTERVAL_SECONDS:-1}
+      - ATTACKER_NOTE_INTERVAL_SECONDS=${ATTACKER_NOTE_INTERVAL_SECONDS:-6}
+      - ATTACKER_LOG_PATH=/logs/attacker.jsonl
+    volumes:
+      - dashboard-logs:/logs
+    init: true
+    shm_size: 1gb
+    restart: unless-stopped
+    networks:
+      - public
+    depends_on:
+      web:
+        condition: service_started
+
+  suricata:
+    container_name: suricata
+    build:
+      context: ./suricata
+      dockerfile: Dockerfile
+    network_mode: "service:attacker"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ./suricata/logs:/var/log/suricata
+    restart: unless-stopped
+    depends_on:
+      attacker:
+        condition: service_started
+
+  dashboard:
+    container_name: dashboard
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    environment:
+      - SURICATA_LOG_PATH=/suricata/eve.json
+      - ATTACKER_LOG_PATH=/logs/attacker.jsonl
+      - WEB_ACCESS_LOG_PATH=/logs/web-access.log
+      - WEB_ERROR_LOG_PATH=/logs/web-error.log
+    ports:
+      - "18000:18000"
+    volumes:
+      - dashboard-logs:/logs:ro
+      - ./suricata/logs:/suricata:ro
+    restart: unless-stopped
+
+networks:
+  public:
+    driver: bridge
+  private:
+    driver: bridge
+    internal: true
+
+volumes:
+  api-data:
+    driver: local
+  dashboard-logs:
+    driver: local

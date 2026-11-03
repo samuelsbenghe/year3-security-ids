@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project Logs</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Project Logs</h1>
+        <p>Refreshes every second.</p>
+      </header>
+      <nav aria-label="Log types">
+        {% for key, label in tabs.items() %}
+        <a
+          href="{{ url_for('index', tab=key) }}"
+          {%
+          if
+          key=""
+          ="active_tab"
+          %}aria-current="page"
+          {%
+          endif
+          %}
+          >{{ label }}</a
+        >
+        {% endfor %}
+      </nav>
+      <section aria-labelledby="log-title">
+        <h2 id="log-title">{{ tabs[active_tab] }} logs</h2>
+        <pre id="log-content" aria-live="polite">Loading logs...</pre>
+      </section>
+    </main>
+    <script>
+      const logContent = document.getElementById("log-content");
+      const activeTab = {{ active_tab | tojson }};
+
+      async function refreshLogs() {
+          try {
+              const response = await fetch(`/logs/${activeTab}`, { cache: "no-store" });
+              if (!response.ok) throw new Error(`HTTP ${response.status}`);
+              const data = await response.json();
+              const shouldStickToBottom = logContent.scrollHeight - logContent.scrollTop - logContent.clientHeight < 40;
+              logContent.textContent = data.content;
+              if (shouldStickToBottom) logContent.scrollTop = logContent.scrollHeight;
+          } catch (error) {
+              logContent.textContent = `Could not refresh logs: ${error.message}`;
+          }
+      }
+
+      refreshLogs();
+      window.setInterval(refreshLogs, 1000);
+    </script>
+  </body>
+</html>

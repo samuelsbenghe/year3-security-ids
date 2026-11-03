@@ -1,0 +1,15 @@
+{% extends "base.html" %} {% block title %}Home - Notes App{% endblock %} {%
+block content %}
+
+<h1>Public notes</h1>
+
+{% if session.get('username') %}
+<a href="{{ url_for('notes') }}">Create a note</a>
+{% endif %} {% for note in notes %}
+<article>
+  <h3>{{ note.username }}</h3>
+  <p>{{ note.content }}</p>
+</article>
+{% else %}
+<p>No notes yet.</p>
+{% endfor %} {% endblock %}

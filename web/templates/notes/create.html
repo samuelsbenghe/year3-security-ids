@@ -1,0 +1,27 @@
+{% extends "base.html" %} {% block title %}Create Note - Notes App{%endblock %}
+{% block content %}
+
+<div class="container">
+  <h1>Create a note</h1>
+
+  <form method="POST" action="{{ url_for('notes') }}">
+    <div class="form-group">
+      <label for="content">What's on your mind?</label>
+
+      <textarea
+        id="content"
+        name="content"
+        rows="6"
+        maxlength="2000"
+        required
+        placeholder="Write your note here..."
+      ></textarea>
+    </div>
+
+    <button type="submit" class="btn">Publish note</button>
+
+    <a href="{{ url_for('index') }}">Cancel</a>
+  </form>
+</div>
+
+{% endblock %}

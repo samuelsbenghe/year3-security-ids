@@ -1,0 +1,4 @@
+fastapi
+uvicorn[standard]
+argon2-cffi
+PyJWT
